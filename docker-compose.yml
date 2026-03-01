@@ -3,7 +3,6 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: dq
-      POSTGRES_PASSWORD: dqpass
       POSTGRES_DB: dqdb
     ports:
       - "5432:5432"
