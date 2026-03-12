@@ -24,24 +24,21 @@ def get_conn():
 
  
 
-def fetchall(query: str, params=None): 
-
-    with get_conn() as conn: 
-
-        with conn.cursor(cursor_factory=RealDictCursor) as cur: 
-
-            cur.execute(query, params) 
-
-            return cur.fetchall() 
-
+def fetchall(query: str, params=None):
+    conn = get_conn()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(query, params)
+            return cur.fetchall()
+    finally:
+        conn.close()
  
-
-def execute(query: str, params=None): 
-
-    with get_conn() as conn: 
-
-        with conn.cursor() as cur: 
-
-            cur.execute(query, params) 
-
-        conn.commit() 
+ 
+def execute(query: str, params=None):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(query, params)
+        conn.commit()
+    finally:
+        conn.close()
