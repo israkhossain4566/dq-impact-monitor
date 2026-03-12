@@ -1,4 +1,4 @@
-from src.week1.jaimil_db_utilities import fetchall, execute
+from week1.jaimil_db_utilities import fetchall, execute
 
 NUM_COLS = ["age", "fnlwgt", "education_num", "capital_gain", "capital_loss", "hours_per_week"]
 
@@ -33,3 +33,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
