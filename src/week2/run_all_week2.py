@@ -52,9 +52,9 @@ def main():
 
     # Run week2 scripts as modules to preserve package context for relative imports
     run_command([sys.executable, "-m", "week2.sahitya_infer_minmax"], env=env)
+    run_command([sys.executable, "-m", "week2.sarhan_Inject_corruptions_into_production"], env=env)  # inject first
     run_command([sys.executable, "-m", "week2.jaimil_range_check"], env=env)
-    run_command([sys.executable, "-m", "week2.dev_zscore_anomaly"], env=env)
-    run_command([sys.executable, "-m", "week2.sarhan_Inject_corruptions_into_production"], env=env)
+    run_command([sys.executable, "-m", "week2.dev_zscore_anomaly"], env=env)        # now runs after corruption
     run_command([sys.executable, "-m", "week2.israk_anomaly_summary"], env=env)
 
     print("\nAll Week 2 scripts ran successfully.")
@@ -62,3 +62,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
