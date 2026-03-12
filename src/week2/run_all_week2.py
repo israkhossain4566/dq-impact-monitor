@@ -54,10 +54,11 @@ def main():
     run_command([sys.executable, "-m", "week2.sahitya_infer_minmax"], env=env)
     run_command([sys.executable, "-m", "week2.jaimil_range_check"], env=env)
     run_command([sys.executable, "-m", "week2.dev_zscore_anomaly"], env=env)
+    run_command([sys.executable, "-m", "week2.sarhan_Inject_corruptions_into_production"], env=env)
     run_command([sys.executable, "-m", "week2.israk_anomaly_summary"], env=env)
-    run_command([sys.executable, str(SRC_DIR / "week2.sarhan_lnject_corruptions_into_production.py")], env=env)
 
     print("\nAll Week 2 scripts ran successfully.")
 
 if __name__ == "__main__":
+
     main()
