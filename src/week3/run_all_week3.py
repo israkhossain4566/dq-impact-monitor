@@ -44,6 +44,12 @@ def main():
     scripts = [
         "israk_mean_std_drift.py",
         "israk_ks_drift.py",
+        "sahitya_drift_report.py",
+        "jaimil_features.py",
+        "jaimil_train_logreg.py",
+        "jaimil_train_rf.py",
+        "sahitya_psi_drift.py",
+        "sahitya_plot_drift.py",
         
     ]
     for script in scripts:
