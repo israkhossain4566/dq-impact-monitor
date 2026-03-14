@@ -50,6 +50,13 @@ def main():
         "jaimil_train_rf.py",
         "sahitya_psi_drift.py",
         "sahitya_plot_drift.py",
+        "dev_eval_prod_clean.py",
+        "dev_eval_after_corruption.py",
+        "dev_feature_impact.py",
+        "sarhan_anomaly_eval.py",
+        "sarhan_drift_eval.py",
+
+
         
     ]
     for script in scripts:
