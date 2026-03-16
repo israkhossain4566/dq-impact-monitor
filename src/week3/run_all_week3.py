@@ -55,9 +55,8 @@ def main():
         "dev_feature_impact.py",
         "sarhan_anomaly_eval.py",
         "sarhan_drift_eval.py",
-
-
-        
+        "israk_ablation.py",
+        "israk_final_figures.py",
     ]
     for script in scripts:
         run_command([sys.executable, str(SRC_DIR / script)], env=env)
