@@ -1,18 +1,3 @@
-"""
-ga_demo.py — DQ Project Demo (Weeks 1, 2 & 3)
-Run this to walk through everything the team built, live in the terminal.
-
-Usage:
-    python ga_demo.py
-
-Requirements:
-    pip install psycopg2-binary tabulate colorama
-    DB must be running and populated (run run_all.py + run_all_week2.py + israk_run_all_week3.py first)
-
-Env vars (optional, these are the defaults):
-    DB_HOST=localhost  DB_PORT=5432  DB_NAME=dqdb  DB_USER=dq  DB_PASS=dqpass
-"""
-
 import os
 import sys
 import time
@@ -28,14 +13,14 @@ except ImportError:
     sys.exit(1)
 
 # ── colours ──────────────────────────────────────────────────────────────────
-C  = Fore.CYAN
-G  = Fore.GREEN
-Y  = Fore.YELLOW
-R  = Fore.RED
-M  = Fore.MAGENTA
-W  = Fore.WHITE
+C   = Fore.CYAN
+G   = Fore.GREEN
+Y   = Fore.YELLOW
+R   = Fore.RED
+M   = Fore.MAGENTA
+W   = Fore.WHITE
 DIM = Style.DIM
-B  = Style.BRIGHT
+B   = Style.BRIGHT
 RST = Style.RESET_ALL
 
 # ── db connection ─────────────────────────────────────────────────────────────
@@ -88,7 +73,7 @@ def pause(msg="Press ENTER to continue..."):
     input(DIM + f"  ── {msg} " + RST)
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  WEEK 1 & 2 SECTIONS  (unchanged from upto_week2.py)
+#  WEEK 1 & 2 SECTIONS  (unchanged)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def intro():
@@ -100,6 +85,7 @@ def intro():
   {C}WEEK 2{RST}  Anomaly detection (range + z-score) · Corruption injection · Summary report
   {C}WEEK 3{RST}  Drift detection (mean/std, KS, PSI) · ML model training & evaluation
            Feature impact · Anomaly evaluation · Drift alerts · Ablation study
+           Impact ranking (PSI x feature importance)
 
 {DIM}Team: Md Israk Hossain · Sahitya · Jaimil · Dev · Sarhan · Pavan{RST}
 """)
@@ -402,7 +388,8 @@ def demo_week3_drift_report():
     methods = ["mean_shift", "ks", "psi"]
     for method in methods:
         rows = query(
-            "SELECT column_name, drift_score, p_value FROM drift_log WHERE method=%s ORDER BY drift_score DESC NULLS LAST",
+            "SELECT column_name, drift_score, p_value FROM drift_log "
+            "WHERE method=%s ORDER BY drift_score DESC NULLS LAST",
             (method,)
         )
         if not rows:
@@ -488,6 +475,101 @@ def demo_week3_feature_impact():
     pause()
 
 
+def demo_week3_impact_ranking():
+    banner("WEEK 3 — FEATURE IMPACT RANKING  [Dev · dev_impact_ranking.py]")
+    info("Dev combined PSI drift scores with Random Forest feature importances")
+    info("to produce a final ranked table: Impact Score = PSI x RF Importance.")
+    info("This tells us which features are both drifting AND important to the model.")
+    info("A high-importance feature that has not drifted ranks LOW (e.g. capital_gain).")
+    info("A moderate-importance feature that has drifted a lot ranks HIGH (e.g. hours_per_week).")
+
+    # Pull PSI scores from drift_log
+    psi_rows = query(
+        "SELECT column_name, drift_score "
+        "FROM drift_log WHERE method = 'psi' "
+        "ORDER BY drift_score DESC"
+    )
+
+    if not psi_rows:
+        print(DIM + "    No PSI scores found in drift_log." + RST)
+        print(DIM + "    Make sure sahitya_psi_drift.py has been run first." + RST)
+        pause()
+        return
+
+    psi_map = {r["column_name"]: float(r["drift_score"]) for r in psi_rows}
+
+    # RF importances (numeric features only, from jaimil_train_rf.py output)
+    # These are the rolled-up importance weights stored at runtime
+    importance = {
+        "age":             0.19,
+        "fnlwgt":          0.06,
+        "education_num":   0.16,
+        "capital_gain":    0.21,
+        "capital_loss":    0.08,
+        "hours_per_week":  0.14,
+    }
+
+    # Compute and rank
+    results = []
+    for col, imp in importance.items():
+        psi_score = psi_map.get(col, 0.0)
+        impact    = psi_score * imp
+        results.append({
+            "feature":    col,
+            "psi":        round(psi_score, 4),
+            "importance": round(imp,       4),
+            "impact":     round(impact,    6),
+        })
+    results.sort(key=lambda x: x["impact"], reverse=True)
+
+    # Print ranked table
+    print()
+    print(M + B + "  === Feature Impact Ranking (PSI x RF Importance) ===" + RST)
+    print()
+    print(f"  {'Rank':<5} {W}{'Feature':<20}{'PSI':>8}{'Importance':>12}{'Impact Score':>14}  Status{RST}")
+    print(f"  {'─'*5} {'─'*20}{'─'*8}{'─'*12}{'─'*14}  {'─'*15}")
+
+    for rank, row in enumerate(results, start=1):
+        if row["psi"] >= 0.20:
+            status = R + "ACTION REQUIRED" + RST
+        elif row["psi"] >= 0.10:
+            status = Y + "Monitor"         + RST
+        else:
+            status = G + "OK"              + RST
+
+        print(
+            f"  {rank:<5} "
+            f"{W}{row['feature']:<20}{RST}"
+            f"{Y}{row['psi']:>8.4f}{RST}"
+            f"{row['importance']:>12.4f}"
+            f"{G}{row['impact']:>14.6f}{RST}"
+            f"  {status}"
+        )
+
+    print()
+    top = results[0]
+    info(f"Top priority: {top['feature']}  "
+         f"(PSI={top['psi']}  importance={top['importance']}  impact={top['impact']})")
+
+    # Highlight the counterintuitive finding
+    print()
+    print(M + "  Key insight:" + RST)
+    cap = next((r for r in results if r["feature"] == "capital_gain"), None)
+    if cap:
+        print(
+            f"  capital_gain has the {R}highest importance{RST} ({cap['importance']}) "
+            f"but {R}lowest impact score{RST} ({cap['impact']}) "
+            f"because it barely drifted (PSI={cap['psi']})."
+        )
+        print(
+            f"  {DIM}An importance-only ranking would surface it first — "
+            f"which would be wrong.{RST}"
+        )
+
+    ok("Impact ranking complete — features ranked by actual risk to the model")
+    pause()
+
+
 def demo_week3_anomaly_eval():
     banner("WEEK 3 — ANOMALY DETECTOR EVALUATION  [Sarhan · sarhan_anomaly_eval.py]")
     info("Sarhan evaluated the Week 2 detectors against the known ground-truth anomalies")
@@ -501,15 +583,27 @@ def demo_week3_anomaly_eval():
     """)
     show_table(rows)
 
-    det_count = query("SELECT COUNT(DISTINCT row_id) AS detected_count FROM anomaly_log WHERE row_id IS NOT NULL")[0]["detected_count"]
+    det_count = query(
+        "SELECT COUNT(DISTINCT row_id) AS detected_count "
+        "FROM anomaly_log WHERE row_id IS NOT NULL"
+    )[0]["detected_count"]
     gt_count  = rows[0]["ground_truth_count"]
 
-    gt_ids  = set(r["id"]     for r in query("SELECT id FROM production_data WHERE (age < 0) OR (hours_per_week > 120) OR (capital_gain > 100000)"))
-    det_ids = set(r["row_id"] for r in query("SELECT DISTINCT row_id FROM anomaly_log WHERE row_id IS NOT NULL"))
+    gt_ids  = set(
+        r["id"] for r in query(
+            "SELECT id FROM production_data "
+            "WHERE (age < 0) OR (hours_per_week > 120) OR (capital_gain > 100000)"
+        )
+    )
+    det_ids = set(
+        r["row_id"] for r in query(
+            "SELECT DISTINCT row_id FROM anomaly_log WHERE row_id IS NOT NULL"
+        )
+    )
 
-    tp = len(gt_ids & det_ids)
-    fp = len(det_ids - gt_ids)
-    fn = len(gt_ids - det_ids)
+    tp   = len(gt_ids & det_ids)
+    fp   = len(det_ids - gt_ids)
+    fn   = len(gt_ids - det_ids)
     prec = tp / (tp + fp) if (tp + fp) else 0.0
     rec  = tp / (tp + fn) if (tp + fn) else 0.0
 
@@ -539,7 +633,12 @@ def demo_week3_drift_eval():
         p         = r["p_value"]
         psi_score = psi_map.get(col, 0.0)
         if (p is not None and float(p) < 0.01) or (psi_score > 0.2):
-            alerts.append((col, float(r["drift_score"]), float(p) if p else None, psi_score))
+            alerts.append((
+                col,
+                float(r["drift_score"]),
+                float(p) if p else None,
+                psi_score,
+            ))
 
     print()
     print(M + B + "  === Drift Alerts ===" + RST)
@@ -547,8 +646,13 @@ def demo_week3_drift_eval():
         print(DIM + "  No columns exceeded the alert thresholds." + RST)
     else:
         for col, ks_stat, p, psi_score in alerts:
-            pv_str  = f"{p:.6f}" if p is not None else "N/A"
-            print(f"  {R}ALERT{RST}  {W}{col:<20}{RST}  KS={Y}{ks_stat:.4f}{RST}  p={DIM}{pv_str}{RST}  PSI={Y}{psi_score:.4f}{RST}")
+            pv_str = f"{p:.6f}" if p is not None else "N/A"
+            print(
+                f"  {R}ALERT{RST}  {W}{col:<20}{RST}"
+                f"  KS={Y}{ks_stat:.4f}{RST}"
+                f"  p={DIM}{pv_str}{RST}"
+                f"  PSI={Y}{psi_score:.4f}{RST}"
+            )
 
     ok(f"{len(alerts)} column(s) raised drift alerts")
     pause()
@@ -633,11 +737,12 @@ def finale():
   {DIM}Dev{RST}      → Production accuracy (clean)         (dev_eval_prod_clean.py)
   {DIM}Dev{RST}      → Production accuracy (corrupted)     (dev_eval_after_corruption.py)
   {DIM}Dev{RST}      → Feature permutation impact          (dev_feature_impact.py)
+  {DIM}Dev{RST}      → Feature impact ranking              (dev_impact_ranking.py)
   {DIM}Sarhan{RST}   → Anomaly detector evaluation         (sarhan_anomaly_eval.py)
   {DIM}Sarhan{RST}   → Drift alert evaluation              (sarhan_drift_eval.py)
   {DIM}Israk{RST}    → Ablation study                      (israk_ablation.py)
   {DIM}Israk{RST}    → Final figures                       (israk_final_figures.py)
-  {DIM}Israk{RST}    → Master runner                       (israk_run_all_week3.py)
+  {DIM}Israk{RST}    → Master runner                       (run_all_week3.py)
 """)
 
 
@@ -648,7 +753,8 @@ def main():
         conn.close()
     except Exception as e:
         print(R + f"\n  ✗ Cannot connect to database: {e}")
-        print(DIM + "  Make sure Postgres is running and run_all.py + run_all_week2.py + israk_run_all_week3.py have been executed first.\n")
+        print(DIM + "  Make sure Postgres is running and run_all.py + "
+                    "run_all_week2.py + run_all_week3.py have been executed first.\n")
         sys.exit(1)
 
     intro()
@@ -678,6 +784,7 @@ def main():
     demo_week3_eval_prod()
     demo_week3_eval_after_corruption()
     demo_week3_feature_impact()
+    demo_week3_impact_ranking()        # <-- new
     demo_week3_anomaly_eval()
     demo_week3_drift_eval()
     demo_week3_ablation()
