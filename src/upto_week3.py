@@ -696,55 +696,6 @@ def demo_week3_final_figures():
     pause()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  FINALE
-# ─────────────────────────────────────────────────────────────────────────────
-
-def finale():
-    banner("DEMO COMPLETE")
-    print(f"""
-{G}{B}  Everything working end-to-end! Here's the full pipeline summary:
-{RST}
-  {C}WEEK 1{RST}
-  {DIM}Israk{RST}    → Designed all 5 database tables (schema SQL files)
-  {DIM}Israk{RST}    → Prepared raw CSVs from UCI dataset  (prepare_dataset.py)
-  {DIM}Sahitya{RST}  → Bulk-loaded CSVs into Postgres      (sahitya_load_csv.py)
-  {DIM}Jaimil{RST}   → Shared DB utilities used by all     (jaimil_db_utilities.py)
-  {DIM}Dev{RST}      → Numeric statistics profiling        (dev_numeric_profile.py)
-  {DIM}Pavan{RST}    → Missing value profiling             (missing_profile.py)
-  {DIM}Sarhan{RST}   → Categorical frequency profiling     (sarhan_category_profile.py)
-  {DIM}Israk{RST}    → Master runner                       (run_all.py)
-
-  {C}WEEK 2{RST}
-  {DIM}Israk{RST}    → Designed constraints + anomaly_log  (week2_israk_constraints_tables.sql)
-  {DIM}Sahitya{RST}  → Learned min/max rules from training (sahitya_infer_minmax.py)
-  {DIM}Sarhan{RST}   → Injected test corruption            (sarhan_inject_corruption.py)
-  {DIM}Jaimil{RST}   → Range-based anomaly detection       (jaimil_range_check.py)
-  {DIM}Dev{RST}      → Z-score anomaly detection           (dev_zscore_anomaly.py)
-  {DIM}Israk{RST}    → Anomaly summary report              (israk_anomaly_summary.py)
-  {DIM}Israk{RST}    → Master runner                       (run_all_week2.py)
-
-  {C}WEEK 3{RST}
-  {DIM}Israk{RST}    → Designed drift_log table            (israk_drift_table.sql)
-  {DIM}Israk{RST}    → Mean/std drift detection            (israk_mean_std_drift.py)
-  {DIM}Israk{RST}    → KS drift detection                  (israk_ks_drift.py)
-  {DIM}Sahitya{RST}  → PSI drift detection                 (sahitya_psi_drift.py)
-  {DIM}Sahitya{RST}  → Distribution drift plots            (sahitya_plot_drift.py)
-  {DIM}Sahitya{RST}  → Drift summary report                (sahitya_drift_report.py)
-  {DIM}Jaimil{RST}   → Feature definitions                 (jaimil_features.py)
-  {DIM}Jaimil{RST}   → Logistic Regression training        (jaimil_train_logreg.py)
-  {DIM}Jaimil{RST}   → Random Forest training              (jaimil_train_rf.py)
-  {DIM}Dev{RST}      → Production accuracy (clean)         (dev_eval_prod_clean.py)
-  {DIM}Dev{RST}      → Production accuracy (corrupted)     (dev_eval_after_corruption.py)
-  {DIM}Dev{RST}      → Feature permutation impact          (dev_feature_impact.py)
-  {DIM}Israk{RST}    → Feature impact ranking              (final_impact_ranking.py)
-  {DIM}Sarhan{RST}   → Anomaly detector evaluation         (sarhan_anomaly_eval.py)
-  {DIM}Sarhan{RST}   → Drift alert evaluation              (sarhan_drift_eval.py)
-  {DIM}Israk{RST}    → Ablation study                      (israk_ablation.py)
-  {DIM}Israk{RST}    → Final figures                       (israk_final_figures.py)
-  {DIM}Israk{RST}    → Master runner                       (run_all_week3.py)
-""")
-
 
 # ── main ──────────────────────────────────────────────────────────────────────
 def main():
