@@ -53,6 +53,7 @@ def main():
         "dev_eval_prod_clean.py",
         "dev_eval_after_corruption.py",
         "dev_feature_impact.py",
+        "final_impact_ranking.py",
         "sarhan_anomaly_eval.py",
         "sarhan_drift_eval.py",
         "israk_ablation.py",
