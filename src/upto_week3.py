@@ -735,13 +735,12 @@ def main():
     demo_week3_eval_prod()
     demo_week3_eval_after_corruption()
     demo_week3_feature_impact()
-    demo_week3_impact_ranking()        # <-- new
+    demo_week3_impact_ranking()       
     demo_week3_anomaly_eval()
     demo_week3_drift_eval()
     demo_week3_ablation()
     demo_week3_final_figures()
 
-    finale()
 
 
 if __name__ == "__main__":
