@@ -737,7 +737,7 @@ def finale():
   {DIM}Dev{RST}      → Production accuracy (clean)         (dev_eval_prod_clean.py)
   {DIM}Dev{RST}      → Production accuracy (corrupted)     (dev_eval_after_corruption.py)
   {DIM}Dev{RST}      → Feature permutation impact          (dev_feature_impact.py)
-  {DIM}Israk{RST}      → Feature impact ranking              (final_impact_ranking.py)
+  {DIM}Israk{RST}    → Feature impact ranking              (final_impact_ranking.py)
   {DIM}Sarhan{RST}   → Anomaly detector evaluation         (sarhan_anomaly_eval.py)
   {DIM}Sarhan{RST}   → Drift alert evaluation              (sarhan_drift_eval.py)
   {DIM}Israk{RST}    → Ablation study                      (israk_ablation.py)
