@@ -476,7 +476,7 @@ def demo_week3_feature_impact():
 
 
 def demo_week3_impact_ranking():
-    banner("WEEK 3 — FEATURE IMPACT RANKING  [Dev · dev_impact_ranking.py]")
+    banner("WEEK 3 — FEATURE IMPACT RANKING  [Md Israk Hossain · final_impact_ranking.py]")
     info("Dev combined PSI drift scores with Random Forest feature importances")
     info("to produce a final ranked table: Impact Score = PSI x RF Importance.")
     info("This tells us which features are both drifting AND important to the model.")
